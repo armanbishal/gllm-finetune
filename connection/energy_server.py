@@ -4,13 +4,13 @@ import os
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 EVENTS = "power/energy-pkg/,power/energy-ram/"
+MEASURE_LOCK = threading.Lock()
 
-
-# check perf works here
 def have_perf():
     try:
         r = subprocess.run(["perf", "stat", "-e", "power/energy-pkg/", "--",
@@ -20,8 +20,6 @@ def have_perf():
         return False
     return "energy-pkg" in r.stderr and "<not supported>" not in r.stderr
 
-
-# pull one number out of perf csv
 def grab(stderr, needle):
     for line in stderr.splitlines():
         if needle in line:
@@ -90,7 +88,7 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(404, {"ok": False, "error": "GET /health or POST /measure"})
 
     def do_POST(self):
-        if self.path != "/measure":
+        if self.path not in ("/measure", "/measure_batch"):
             self.reply(404, {"ok": False, "error": "unknown endpoint"})
             return
         n = int(self.headers.get("Content-Length", 0))
@@ -99,11 +97,28 @@ class Handler(BaseHTTPRequestHandler):
         except json.JSONDecodeError as e:
             self.reply(400, {"ok": False, "error": "bad json: %s" % e})
             return
+
+        reps = int(data.get("reps", 5))
+        timeout = int(data.get("timeout", 120))
+
+        if self.path == "/measure_batch":
+            items = data.get("codes", [])
+            results = []
+            with MEASURE_LOCK:
+                for code in items:
+                    if not code or not code.strip():
+                        results.append({"ok": False, "error": "empty code"})
+                    else:
+                        results.append(measure(code, reps, timeout))
+            self.reply(200, {"ok": True, "results": results})
+            return
+
         code = data.get("code", "")
         if not code.strip():
             self.reply(400, {"ok": False, "error": "empty code"})
             return
-        out = measure(code, int(data.get("reps", 5)), int(data.get("timeout", 120)))
+        with MEASURE_LOCK:
+            out = measure(code, reps, timeout)
         self.reply(200, out)
 
     def log_message(self, fmt, *args):

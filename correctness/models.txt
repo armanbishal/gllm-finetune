@@ -1,0 +1,9 @@
+qwen-0.5b    Qwen/Qwen2.5-Coder-0.5B-Instruct
+qwen-1.5b    Qwen/Qwen2.5-Coder-1.5B-Instruct
+qwen-3b      Qwen/Qwen2.5-Coder-3B-Instruct
+qwen-7b      Qwen/Qwen2.5-Coder-7B-Instruct
+qwen-14b     Qwen/Qwen2.5-Coder-14B-Instruct
+qwen-32b     Qwen/Qwen2.5-Coder-32B-Instruct
+starcoder2-15b   bigcode/starcoder2-15b
+codellama-13b    codellama/CodeLlama-13b-Instruct-hf
+codellama-34b    codellama/CodeLlama-34b-Instruct-hf

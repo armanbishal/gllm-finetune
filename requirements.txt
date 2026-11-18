@@ -1,0 +1,4 @@
+# This service uses the Python standard library only.
+# No third-party packages are required to run the server or client.
+#
+# System requirement (server node): `perf` with RAPL energy counters.

@@ -24,7 +24,7 @@ TIMEOUT = int(os.environ.get("ENERGY_TIMEOUT", "180"))
 LIMIT = int(os.environ.get("TEST_LIMIT", "10"))
 
 _here = os.path.dirname(os.path.abspath(__file__))
-DATA = os.path.join(os.path.dirname(_here), "data", "problems.json")
+DATA = os.path.join(os.path.dirname(_here), "dataset", "problems.jsonl")
 
 IMPORTS = ("from typing import *\n"
            "from collections import *\n"
